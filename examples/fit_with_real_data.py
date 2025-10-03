@@ -56,12 +56,26 @@ def main():
         return -0.5*total_chi2
 
     # Priors: (mu0, sigma0, xi_damp)
-    priors = [(-0.3, 0.3), (-0.3, 0.3), (0.0, 1.0)]
-    theta0 = np.array([0.05, 0.05, 0.1])
-    chain, lnp = run_emcee(loglike, theta0, priors, nwalkers=32, nsteps=400, nburn=200)
+    priors = [(-0.3, 0.3), (-0.3, 0.3), (0.0, 0.02)]
+    theta0 = np.array([0.0, 0.0, 0.005])
+    chain, lnp, sampler = run_emcee(loglike, theta0, priors, nwalkers=32, nsteps=500, nburn=250)
+    
+    # Save in both formats
     os.makedirs('examples/_real_fit', exist_ok=True)
-    np.savez('examples/_real_fit/posterior.npz', chain=chain, logprob=lnp)
-    print('Done. Saved posterior to examples/_real_fit/posterior.npz')
+    os.makedirs('outputs', exist_ok=True)
+    
+    param_names = ['mu_0', 'Sigma_0', 'xi_damp']
+    np.savez('examples/_real_fit/posterior.npz', chain=chain, logprob=lnp, param_names=param_names)
+    np.savez('outputs/posterior_chain.npz', samples=chain, log_prob=lnp, param_names=param_names)
+    print('Done. Saved posterior to examples/_real_fit/posterior.npz and outputs/posterior_chain.npz')
+    
+    # Print summary stats
+    print(f"\nPosterior summary (median [16th, 84th percentile]):")
+    for i, name in enumerate(param_names):
+        med = np.median(chain[:, i])
+        lo = np.percentile(chain[:, i], 16)
+        hi = np.percentile(chain[:, i], 84)
+        print(f"  {name}: {med:.4f} [{lo:.4f}, {hi:.4f}]")
 
 if __name__ == "__main__":
     main()
