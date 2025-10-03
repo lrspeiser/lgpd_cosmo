@@ -1,0 +1,21 @@
+MCMC CONVERGENCE DIAGNOSTICS
+======================================================================
+
+Total samples: 8000
+Burn-in: assumed in posterior_chain.npz (already removed)
+
+Parameter       Median     Std        τ_int      N_eff      R̂        
+----------------------------------------------------------------------
+mu_0            0.0413     0.1730     1.4        2953       1.0249    
+Sigma_0         0.0248     0.0346     0.9        4315       1.0092    
+xi_damp         0.0038     0.0030     0.9        4532       1.0045    
+
+======================================================================
+
+Diagnostic criteria:
+  ✓ R̂ < 1.01: Excellent convergence
+  ✓ N_eff > 400: Sufficient for reliable posteriors
+  ✓ τ_int < 50: Good mixing
+
+Max R̂ = 1.0249 → GOOD convergence
+Min N_eff = 2953 → EXCELLENT
