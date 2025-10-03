@@ -38,12 +38,13 @@ Python binding test
 - "$REPO_ROOT"/.venv/bin/python -c "import clik; print('clik OK', clik.__file__)"
 
 Wiring into this repository
-- We provide an adapter at lgpd_cosmo/planck_plc.py that checks for clik and exposes a minimal interface to evaluate -2 ln L given Cls.
+- Use the adapter at planck_plc.py (repo root). It opens high-ℓ TT/TE/EE, low-ℓ TT/EE, and lensing likelihoods and exposes a simple nll() API.
 - The adapter does not ship Planck data; you must point it to the local likelihood paths.
-- The adapter includes explicit checks and will raise informative errors if the environment is not configured correctly. This is intentional to avoid silent fallbacks.
+- We intentionally fail fast if the environment is not configured correctly; no silent fallbacks.
 
 Using PLC in analyses (once installed)
-- See scripts/planck_plc_check.py for a sanity test that loads a likelihood and evaluates it at baseline Cls.
+- Source environment: `source ./planck_env.sh` (set PLC_ROOT inside first)
+- Run sanity check: `python ./planck_plc_check.py --highl /path/to/plik/...TTTEEE.clik`
 - Future: a scripts/run_planck_plc_fit.py will run an MCMC over our parameters plus nuisance parameters; we will integrate with an optimizer or sampler once clik is available.
 
 Notes and caveats

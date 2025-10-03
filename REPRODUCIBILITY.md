@@ -333,8 +333,9 @@ Integrate LGPD modifications into CAMB sources.
 
 We provide an adapter and setup guide to use the official Planck PLC directly from this repo once you have installed it locally:
 - docs/PLANCK_PLC_SETUP.md — installation and environment configuration
-- lgpd_cosmo/planck_plc.py — adapter scaffold (fail-fast until wired)
-- scripts/planck_plc_check.py — sanity check (import clik and CLIK_PATH)
+- planck_plc.py — adapter at repository root (nll evaluation)
+- planck_plc_check.py — sanity check (import clik and CLIK_PATH)
+- planck_env.sh — environment helper (set PLC_ROOT then `source ./planck_env.sh`)
 
 This path intentionally fails fast if PLC is missing or misconfigured. No silent fallbacks.
 
