@@ -1,0 +1,56 @@
+\label{sec:theory}
+
+\subsection{Low-Gravity Photonic Decoherence (LGPD)}
+We model photons as an open quantum system whose density matrix $\hat{\rho}$ evolves according to a Lindblad master equation
+\begin{equation}
+\frac{d\hat{\rho}}{dt} = -\frac{i}{\hbar}[\hat{H}_{\rm QED},\hat{\rho}] 
+ + \sum_\alpha \left( \hat{L}_\alpha \hat{\rho}\,\hat{L}_\alpha^\dagger 
+ - \frac{1}{2}\{\hat{L}_\alpha^\dagger \hat{L}_\alpha, \hat{\rho} \} \right),
+\label{eq:lindblad}
+\end{equation}
+where the Lindblad operators $\hat{L}_\alpha$ encode decohering interactions with an effective gravitational environment. We posit that the \emph{rate} of these interactions is controlled by a scalar of the gravitational field---either a local acceleration proxy $a_{\rm loc}\propto c\,|\nabla\Phi|$ or a tidal invariant $\mathcal{T}^2 \equiv E_{ij}E_{ij}$---and becomes appreciable only in ultra-weak gravity. A minimal phenomenological form is
+\begin{equation}
+\Gamma(a) \equiv \Gamma_0 \left(\frac{a_\star^2}{a^2+a_\star^2}\right)^p,\qquad a=\frac{1}{1+z},
+\label{eq:Gamma}
+\end{equation}
+with $a_\star$ setting the transition to the low-gravity regime and $p>0$ the steepness.
+
+To ensure that the \emph{mean spectrum} remains Planckian to within COBE-FIRAS and Planck bounds (i.e.\ $|\mu|,|y|\lesssim 10^{-5}$), the set $\{\hat{L}_\alpha\}$ must include a small emissive/absorptive component that drives the photon occupation $n_\nu$ toward the Bose-Einstein fixed point with vanishing chemical potential. In the (geometric-optics) radiative-transfer limit along a null geodesic $s$, the specific intensity obeys
+\begin{equation}
+\frac{d I_\nu}{ds} = -\,\Gamma(a)\,\big[I_\nu - B_\nu(T_{\rm LGPD})\big] \;+\; \text{(lensing, Thomson, etc.)},
+\label{eq:rt}
+\end{equation}
+with $B_\nu$ the Planck function and $T_{\rm LGPD}\approx T_{\rm CMB}$ up to tiny, environment-dependent corrections. For anisotropies, LGPD induces a frequency-independent damping envelope in harmonic space,
+\begin{equation}
+D_\ell = \exp\!\left[- \xi_{\rm damp}\, \frac{\ell(\ell+1)}{\ell_d^2} \right],\qquad \ell_d\sim {\cal O}(10^3\!-\!10^4),
+\label{eq:envelope}
+\end{equation}
+with $\xi_{\rm damp}\ge 0$ a small parameter that must be $\ll 1$ to preserve TE/EE phases and the damping tail. Equation~(\ref{eq:envelope}) summarizes the anisotropy impact of Eq.~(\ref{eq:rt}) after integrating over the visibility function; a full treatment would include the collision term in the Boltzmann hierarchy for temperature and polarization and will be implemented in our Boltzmann pipeline.
+
+\paragraph{Consistency.}
+LGPD must (i) vanish in strong fields (compact objects; Solar System), (ii) preserve a near-perfect blackbody spectrum (tiny $\mu$/$y$), (iii) be achromatic to leading order in the CMB bands, and (iv) not generate acausal features. Our parameterization enforces (i)--(iii) at the phenomenology level; (iv) constrains the allowed $\hat{L}_\alpha$ operators (no super-luminal signaling; completely positive trace-preserving evolution).
+
+\subsection{Modified linear response: $\mu(k,z)$ and $\Sigma(k,z)$}
+At the level of scalar linear perturbations in Newtonian gauge, we adopt a widely used, agnostic parameterization of departures from GR:
+\begin{align}
+k^2 \Phi &= 4\pi G\,a^2\,\rho\,\Delta \;\big[1+\mu(k,z)\big], \label{eq:poisson}\\
+\Phi + \Psi &= \big[1+\Sigma(k,z)\big]\;\big(\Phi+\Psi\big)_{\rm GR}, \label{eq:sigma}
+\end{align}
+where $\Delta$ is the comoving matter density perturbation. The function $\mu$ modifies the effective strength of gravity in the Poisson equation and thus the \emph{growth} of structure; $\Sigma$ encodes anisotropic stress or gravitational slip relevant for \emph{lensing} and the Weyl potential. We require $\mu,\Sigma\to 0$ in the strong-field (or small-scale) limit and adopt smooth transitions in wavenumber and redshift:
+\begin{align}
+\mu(k,z) &= \mu_0\, \frac{1}{1+(k/k_0)^{-m}} \; \frac{1}{1+\big(\frac{1+z}{1+z_t}\big)^{n}}, \label{eq:muform}\\
+\Sigma(k,z) &= \Sigma_0\, \frac{1}{1+(k/k_0)^{-m}} \; \frac{1}{1+\big(\frac{1+z}{1+z_t}\big)^{n}}. \label{eq:sigmaform}
+\end{align}
+Typical choices $m\sim 2$ and $n\gtrsim 2$ ensure a gentle, monotonic activation at large scales ($k\lesssim k_0$) and low redshift ($z\lesssim z_t$). This form connects directly to observables: $\mu$ feeds the growth rate $f(a)$ and $f\sigma_8$, while $\Sigma$ modifies the CMB lensing amplitude and the E\_G statistic. In our forecasts and fits we treat $(\mu_0,\Sigma_0,k_0,z_t,m,n)$ as phenomenological parameters, with priors enforcing stability and positivity of the matter power spectrum.
+
+\paragraph{Mapping to $A_L$ and reconstruction.}
+Qualitatively, a positive $\Sigma_0$ enhances the smoothing of acoustic peaks in lensed TT/TE/EE, mimicking $A_L>1$ in power-spectrum fits. However, lensing \emph{reconstruction} depends on the true lensing potential power $C_L^{\phi\phi}$, which responds differently to $(\mu,\Sigma)$ and is not generally equivalent to a constant $A_L$. Our analysis therefore computes the lensed spectra self-consistently (in the Boltzmann approach) and compares the implied $A_L^{\rm eff}$ to reconstruction constraints.
+
+\paragraph{Threadbare/coherence-length interpretation (optional).}
+If low-gravity leads to a finite metric coherence length $\ell_c(z)$, Eqs.~(\ref{eq:muform})--(\ref{eq:sigmaform}) can be understood as the response of modes with $\lambda\gtrsim \ell_c$ to an effectively enhanced curvature. We do not fit $\ell_c$ directly but note that it maps onto $k_0\sim 2\pi/\ell_c$ with redshift evolution $\propto (1+z)^{\nu}$.
+
+\paragraph{Strong-field and early-universe limits.}
+Solar-System, binary pulsar, and black-hole tests require $\mu,\Sigma\to 0$ at high accelerations/small scales; our choices ensure this by construction. Big-bang nucleosynthesis and recombination physics constrain any early-time deviations; choosing $z_t\lesssim {\cal O}(1)$ (or enforcing $\mu,\Sigma\to 0$ for $z\gg 1$) preserves the standard early-universe phenomenology.
+
+\paragraph{Predictions.}
+The joint $(\mu,\Sigma,\Gamma)$ model predicts: (i) a scale-dependent growth modification testable with $f\sigma_8$ and weak lensing, (ii) a small, frequency-independent suppression in EE at low $\ell$ from LGPD, (iii) a possible small shift in the inferred $A_L$ from spectra vs reconstruction depending on $\Sigma(k,z)$, and (iv) ultra-weak-gravity signatures along deep void lines of sight in both spectral and interferometric coherence statistics.

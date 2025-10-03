@@ -88,10 +88,14 @@ def setup_loglike(repo, dataset='full'):
         elast_p = ElasticityParams(sigma0=Sigma0)
         transfer = LGPDTransfer(lgpd_p, cond_p, elast_p)
         
-        ell_mod, cltt_mod, clte_mod, clee_mod = apply_modifications(
-            baseline_cls[0], baseline_cls[1], baseline_cls[2], baseline_cls[3],
-            transfer, apply_lgpd=True, apply_mu_sigma=True
-        )
+        # apply_modifications now returns a dict and takes (ell, cls_dict, transfer)
+        ell_mod = baseline_cls[0]
+        cls_in = {'TT': baseline_cls[1], 'TE': baseline_cls[2], 'EE': baseline_cls[3]}
+        cls_mod = apply_modifications(ell_mod, cls_in, transfer)
+        
+        cltt_mod = cls_mod['TT']
+        clte_mod = cls_mod['TE']
+        clee_mod = cls_mod['EE']
         
         # Convert to D_ell
         def cl_to_dl(ell, cl):

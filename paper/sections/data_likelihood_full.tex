@@ -1,0 +1,28 @@
+\label{sec:data}
+
+\subsection{CMB datasets}
+We use the Planck 2018 release \cite{Planck2018_params,Planck2018_lensing}. In the main analysis we include:
+\begin{itemize}
+  \item High-$\ell$ TT, TE, EE bandpowers (Plik or CamSpec ``lite''), with published covariance matrices and window functions.
+  \item Low-$\ell$ polarization (Commander or \texttt{lowE}) to constrain $\tau$.
+  \item CMB lensing reconstruction bandpowers $C_L^{\phi\phi}$ with covariance.
+\end{itemize}
+We work on the native multipole binning and convolve the theoretical $C_\ell$ with the provided window functions before likelihood evaluation. Following Planck, we marginalize over (or adopt priors on) foreground and calibration nuisance parameters when using the full likelihood; in a ``lite'' setup we use the pre-marginalized bandpowers and covariances.
+
+\subsection{BAO, SNe, and growth}
+For background distances, we include BAO measurements from 6dFGS, SDSS MGS, and BOSS/eBOSS DR12/DR16 \cite{Alam2017_BOSS,Gil-Marin2020_eBOSS} (compressed $D_M(z)/r_d$, $H(z)r_d$, or $D_V(z)/r_d$ with covariances) and the Pantheon+ SNe compilation \cite{Scolnic2018_Pantheon} (distance moduli and full covariance). For the growth of structure, we use a compiled set of $f\sigma_8(z)$ measurements derived from redshift-space distortions (RSD) with their covariances. Exact survey lists, redshift ranges, and covariances are detailed in the Supplement.
+
+\subsection{Model vector and convolution}
+Given parameters $\theta$ (cosmological + MG + LGPD + nuisances), we compute theoretical (unlensed) $C_\ell$ and lensing potential $C_L^{\phi\phi}$ using a Boltzmann code with $(\mu,\Sigma)$ in the linear perturbation hierarchy. We lens the spectra self-consistently, then apply the small LGPD envelope $D_\ell$ of Eq.~(\ref{eq:envelope}) to TT/TE/EE. The result is convolved with Planck window functions to produce model bandpowers $\mathbf{m}_{\rm CMB}(\theta)$. For BAO/SNe/growth we compute $D_M(z)$, $H(z)$, and $f\sigma_8(z)$, including $\mu$-induced growth modifications.
+
+\subsection{Likelihood}
+Our joint Gaussian log-likelihood is
+\begin{equation}
+-2\ln\mathcal{L}(\theta) = \sum_{i\in\{\rm TT,TE,EE\}} (\mathbf{d}_i-\mathbf{m}_i)^\top \mathbf{C}_i^{-1} (\mathbf{d}_i-\mathbf{m}_i)
++ (\mathbf{d}_{\phi\phi}-\mathbf{m}_{\phi\phi})^\top \mathbf{C}_{\phi\phi}^{-1} (\mathbf{d}_{\phi\phi}-\mathbf{m}_{\phi\phi})
++ \chi^2_{\rm BAO} + \chi^2_{\rm SNe} + \chi^2_{\rm growth} + \Pi(\theta),
+\end{equation}
+where $\Pi(\theta)$ encodes priors and penalty terms. To enforce spectral-distortion limits we include a prior on the LGPD emissive kernel ensuring $|\mu|,|y|\lesssim 10^{-5}$; operationally, we use a conservative top-hat prior in the space of kernel amplitudes that calibrate to $\mu$/$y$ via a Kompaneets-like mapping (details in Supplement). For Planck full-likelihood runs we include standard nuisance parameters; for ``lite'' runs we adopt the published covariances and no additional nuisances.
+
+\subsection{Multipole ranges and cuts}
+We adopt the Planck high-$\ell$ ranges for TT/TE/EE and low-$\ell$ polarization for $\tau$, excluding bins known to be foreground-dominated or problematic per Planck recommendations. Sensitivity to these choices is assessed in robustness tests.

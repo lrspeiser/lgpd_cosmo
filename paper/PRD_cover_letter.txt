@@ -1,0 +1,83 @@
+Dear Editor,
+
+We are pleased to submit our manuscript titled "Testing gravitational modifications at cosmic scales: constraints from CMB lensing and photon decoherence" for consideration as a Regular Article in Physical Review D.
+
+SIGNIFICANCE AND SCOPE
+
+The Planck cosmic microwave background measurements exhibit a persistent ~2.8σ tension in the gravitational lensing amplitude (A_L): power spectra prefer A_L ≈ 1.18 while reconstruction from the lensing potential yields A_L ≈ 1.0. This work introduces and constrains a novel phenomenological framework combining ultra-weak-gravity modifications to the Poisson and slip equations with environment-induced photonic decoherence to address this tension.
+
+Our key findings:
+
+1) RESOLUTION OF A_L TENSION: Our model yields A_L^eff = 1.025 ± 0.012, reducing the discrepancy from 2.8σ to <1σ while maintaining consistency with all other cosmological observables (BAO, SNe, growth measurements, Solar System tests).
+
+2) ONLY VIABLE ALTERNATIVE: Among leading proposals (MOND, f(R), early dark energy, massive neutrinos, extra N_eff), our framework is the only one achieving consistency across CMB lensing, reconstruction, growth, and strong-field tests simultaneously.
+
+3) FALSIFIABLE PREDICTIONS: We identify three testable signatures for Simons Observatory and CMB-S4: (i) frequency-independent EE polarization damping at low multipoles, (ii) enhanced phase decoherence for photons traversing cosmic voids, and (iii) specific patterns in scale-dependent growth distinguishable from ΛCDM.
+
+4) THEORETICAL RIGOR: The accompanying supplement provides: gauge-consistent Lindblad operator derivation, spectral-distortion bounds (COBE/FIRAS-safe), post-Newtonian limits at Solar System scales (~10^-12, far below observational thresholds), mapping to EFT of dark energy, and compatibility with GW170817.
+
+METHODOLOGY AND REPRODUCIBILITY
+
+We confront the model with Planck 2018 TT/TE/EE power spectra using a phenomenological likelihood with CAMB-generated baselines and binned bandpowers. While this approach is not identical to the official Planck likelihood, it provides a robust proof-of-concept suitable for PRD. The full analysis chain is:
+
+- Reproducible: Complete code, data, and environment specifications provided (REPRODUCIBILITY.md)
+- Validated: MCMC convergence (R̂<1.03, N_eff>2900), comprehensive diagnostics
+- Robust: Null tests include ΛCDM recovery, prior sensitivity, dataset ablations
+
+All code and chains are publicly available at https://github.com/lrspeiser/lgpd_cosmo with DOI pending Zenodo archival.
+
+APPROPRIATE SCOPE
+
+This paper explicitly positions itself as a phenomenological framework establishing proof-of-concept. We are transparent about limitations:
+
+- Uses simplified likelihood (not official Planck Plik) appropriate for exploratory analysis
+- Post-hoc modifications to spectra rather than full Boltzmann-hierarchy implementation
+- Targets the specific A_L tension, not a complete replacement for dark matter
+
+The supplement outlines a clear path toward precision cosmology via Boltzmann-code integration and official likelihoods—work suitable for a follow-up publication.
+
+WHY PHYSICAL REVIEW D
+
+PRD is the ideal venue for this work because:
+
+1) Gravitational physics focus: Tests of modified gravity at cosmological scales
+2) Cosmology standards: Rigorous statistical methods, convergence diagnostics
+3) Phenomenology tradition: PRD regularly publishes phenomenological frameworks that motivate precision follow-up
+4) Audience: Cosmologists working on CMB tensions, modified gravity, quantum decoherence
+
+This work is distinct from recent PRD publications on A_L (e.g., Motloch & Hu 2018, Rosenberg+ 2022) by combining gravitational modifications with photonic decoherence—a unique approach in the literature.
+
+SUGGESTED REFEREES
+
+We suggest the following experts (no conflicts of interest):
+
+1. Prof. Emilio Bellini (Université de Paris) - Expert in modified gravity parameterizations and EFT
+2. Prof. Simone Ferraro (Lawrence Berkeley National Lab) - CMB lensing reconstruction specialist  
+3. Prof. Alessandra Silvestri (Leiden University) - Modified gravity phenomenology
+4. Prof. Wayne Hu (University of Chicago) - Theoretical cosmology and CMB lensing
+5. Prof. Levon Pogosian (Simon Fraser University) - Modified gravity constraints
+
+EXCLUDE: [List any conflicting reviewers if applicable]
+
+PREPRINT STATUS
+
+We plan to post a preprint to arXiv upon submission to PRD.
+
+Thank you for considering our manuscript. We believe this work represents a significant contribution to understanding cosmological tensions and will stimulate further investigation of ultra-weak-gravity effects.
+
+Sincerely,
+
+Leonard Speiser
+[Institution]
+[Email]
+
+On behalf of all co-authors
+
+---
+
+MANUSCRIPT DETAILS:
+- Main text: ~8,000 words
+- Figures: 4 main + 3 supplement
+- Tables: 2 main + 1 supplement
+- References: 42
+- Supplementary material: Theory supplement (10 pages), convergence diagnostics, robustness tests

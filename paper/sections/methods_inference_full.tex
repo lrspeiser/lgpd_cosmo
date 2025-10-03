@@ -1,0 +1,41 @@
+\label{sec:methods}
+
+\subsection{Parameters}
+We consider a base set of cosmological parameters $\{\Omega_b h^2,\Omega_c h^2,\theta_s,\tau,\ln(10^{10}A_s),n_s\}$, augmented by modified-gravity and LGPD parameters
+\[
+\Theta_{\rm MG}=\{\mu_0,\Sigma_0,k_0,m,z_t,n\},\qquad
+\Theta_{\rm LGPD}=\{\xi_{\rm damp}\},
+\]
+with optional late-time background freedom (e.g.\ $w_0,w_a$) for sensitivity tests. In full Planck runs we include standard nuisance parameters or use the ``lite'' pre-marginalized products.
+
+\subsection{Priors}
+We adopt broad, conservative priors (Table~\ref{tab:priors}) that enforce GR recovery and strong-field safety. The pivot scales $k_0$ and $z_t$ span linear-regime wavenumbers and late-time redshifts, respectively. The envelope parameter $\xi_{\rm damp}$ is kept small to preserve TE/EE phases and the damping tail; spectral-distortion limits further constrain the LGPD emissive kernel (Supplement).
+
+\begin{table}[t]
+\centering
+\caption{Parameter priors used in the main analysis. ``Wide'' denotes uninformative priors consistent with Planck ranges.}
+\label{tab:priors}
+\begin{tabular}{lcc}
+\hline
+Parameter & Prior & Notes \\
+\hline
+$\mu_0$ & Uniform $[-0.5,\,0.5]$ & Poisson-response amplitude \\
+$\Sigma_0$ & Uniform $[-0.5,\,0.5]$ & Lensing/slip amplitude \\
+$k_0$ & Log-Uniform $[10^{-3},\,0.3]\,h\,{\rm Mpc}^{-1}$ & Transition scale \\
+$m$ & Uniform $[0.5,\,4]$ & Scale steepness \\
+$z_t$ & Uniform $[0,\,3]$ & Redshift transition \\
+$n$ & Uniform $[1,\,6]$ & Redshift steepness \\
+$\xi_{\rm damp}$ & Uniform $[0,\,0.05]$ & LGPD anisotropy envelope \\
+Cosmo base & \emph{Wide} & Planck-consistent broad priors \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Computation}
+We generate unlensed $C_\ell$ and $C_L^{\phi\phi}$ with a Boltzmann code that accepts $(\mu,\Sigma)$ (e.g.\ CLASS with an MG extension). We lens the spectra self-consistently, then apply the small LGPD envelope $D_\ell$ to TT/TE/EE. Bandpower predictions are obtained by convolving with Planck window functions. For BAO/SNe we compute background distances; for growth we integrate the linear growth ODE with $1+\mu(a,k\!\sim\!0.1\,h\,{\rm Mpc}^{-1})$.
+
+\subsection{Sampling and convergence}
+We use an affine-invariant ensemble MCMC with $N_{\rm w}\gtrsim 64$ walkers and $\gtrsim 2{,}000$ steps (discarding the first $500$ as burn-in). Convergence is monitored via split-$\hat{R}<1.01$, estimated autocorrelation times, and effective sample sizes. We run multiple chains from dispersed initial conditions and merge posteriors after convergence criteria are met.
+
+\subsection{Pipeline validation}
+We first recover $\Lambda$CDM by setting $(\mu_0,\Sigma_0,\xi_{\rm damp})=(0,0,0)$ and verifying Planck-consistent best-fit and $\chi^2$. We then enable $\Sigma$ (with $\mu=0$) to test $A_L$-like responses, and finally free $\mu$ and $\xi_{\rm damp}$. Robustness is assessed by varying priors, multipole cuts, and dataset combinations.

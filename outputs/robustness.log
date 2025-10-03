@@ -1,0 +1,2 @@
+/Users/leonardspeiser/Projects/lpgd/.venv/lib/python3.13/site-packages/emcee/moves/red_blue.py:99: RuntimeWarning: invalid value encountered in scalar subtract
+  lnpdiff = f + nlp - state.log_prob[j]
