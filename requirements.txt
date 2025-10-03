@@ -1,0 +1,19 @@
+camb==1.6.4
+contourpy==1.3.3
+cycler==0.12.1
+emcee==3.1.6
+fonttools==4.60.1
+kiwisolver==1.4.9
+-e git+https://github.com/lrspeiser/lgpd_cosmo.git@b298a617e5238ef5716efec8a27e975300b59daa#egg=lgpd_cosmo
+matplotlib==3.10.6
+mpmath==1.3.0
+numpy==2.3.3
+packaging==25.0
+pillow==11.3.0
+pyparsing==3.2.5
+python-dateutil==2.9.0.post0
+scipy==1.16.2
+setuptools==80.9.0
+six==1.17.0
+sympy==1.14.0
+wheel==0.45.1
