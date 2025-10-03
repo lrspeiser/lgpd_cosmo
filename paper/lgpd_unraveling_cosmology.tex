@@ -1,0 +1,108 @@
+
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{natbib}
+\usepackage{authblk}
+
+\title{Low-Gravity Unraveling Cosmology:\\
+A Unified Phenomenology of CMB, Galactic Dynamics, and Cosmic Acceleration}
+
+\author[1]{First Author}
+\author[1]{Second Author}
+\affil[1]{Institute for Speculative Cosmology, Anywhere University}
+
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We develop a phenomenological framework in which spacetime departs from General Relativity (GR) only in the ultra-weak gravity regime, while remaining consistent with strong-field tests around compact objects.
+The framework combines (i) a gravity-triggered decoherence and thermalization mechanism for photons---\emph{Low-Gravity Photonic Decoherence} (LGPD)---and (ii) large-scale modifications to linear perturbations via a condensed or elastic phase of gravity, encoded by scale- and redshift-dependent functions $\mu(k,z)$ and $\Sigma(k,z)$.
+We show how these ingredients can simultaneously (a) reproduce a nearly perfect blackbody sky with acoustic structure akin to the Cosmic Microwave Background (CMB) \emph{without} requiring a hot Big Bang origin, and (b) mimic dark-matter-like gravitational driving and late-time dark energy.
+We present an effective theory, observational predictions, and an open-source code for confronting the model with Planck TT/TE/EE, BAO, SNe, lensing, and growth data.
+\end{abstract}
+
+\section{Introduction}
+Standard cosmology ($\Lambda$CDM) explains a wide range of observations at the cost of introducing dark matter and dark energy and a hot early phase.
+While GR has passed stringent strong-field tests, anomalies appear in the weak-field, low-acceleration regime on galactic and cluster scales.
+We explore the hypothesis that \emph{spacetime unravels} in the low-gravity limit, altering photon coherence and large-scale gravitational response, while preserving GR near black holes and in the Solar System.
+
+\paragraph{Contributions.} (1) We propose LGPD, a gravity-triggered decoherence/thermalization dynamics capable of generating a nearly blackbody photon bath locally in acceleration space. (2) We parameterize large-scale responses through $\mu(k,z)$ and $\Sigma(k,z)$ and a finite coherence length $\ell_c(z)$. (3) We outline a minimal modification to the Boltzmann hierarchy and a practical phenomenology that modulates baseline $C_\ell$. (4) We release a codebase for parameter inference and forecasts.
+
+\section{Phenomenological postulates}
+\textbf{P1 (LGPD).} In sufficiently weak gravity (measured by a scalar $a_{\rm loc}$ or a tidal invariant), the photon density matrix evolves under a Lindblad operator with net rate $\Gamma(a_{\rm loc})$, driving the specific intensity $I_\nu$ towards a blackbody fixed point $B_\nu(T_{\rm LGPD})$:
+\begin{equation}
+\frac{\partial I_\nu}{\partial s} = -\Gamma(a_{\rm loc})\big[I_\nu - B_\nu(T_{\rm LGPD})\big] + \cdots .
+\end{equation}
+Non-zero emissive/absorptive channels ensure vanishing chemical potential.
+
+\noindent
+\textbf{P2 (Condensed/Elastic phase).} In the same regime, linear metric perturbations are modified according to
+\begin{equation}
+k^2\Phi = 4\pi G a^2 \rho \,[1+\mu(k,z)]\,\delta, \qquad
+\Phi+\Psi = [1+\Sigma(k,z)]\,(\Phi+\Psi)_{\rm GR},
+\end{equation}
+with $\mu,\Sigma\to 0$ in strong gravity.
+
+\noindent
+\textbf{P3 (Threadbare coherence).} The metric exhibits a finite coherence length $\ell_c$, such that modes with $\lambda \gtrsim \ell_c$ feel enhanced effective curvature. We encode this through the scale dependence of $\mu,\Sigma$.
+
+\section{Effective parameterization}
+We adopt smooth transitions:
+\begin{align}
+\mu(k,z) &= \mu_0 \, \frac{1}{1+(k/k_0)^{-m}} \, \frac{1}{1+\big(\frac{1+z}{1+z_t}\big)^{n}}, \\
+\Sigma(k,z) &= \Sigma_0 \, \frac{1}{1+(k/k_0)^{-m}} \, \frac{1}{1+\big(\frac{1+z}{1+z_t}\big)^{n}}, \\
+\Gamma(a) &= \Gamma_0 \left(\frac{a_\star^2}{a^2 + a_\star^2}\right)^p, \\
+D_\ell &= \exp\left[- \xi_{\rm damp} \frac{\ell(\ell+1)}{\ell_d^2}\right] ,
+\end{align}
+with $\ell_d\sim 1500$ mimicking anisotropy damping from LGPD.
+Here $\mu$ governs growth and driving of acoustic oscillations; $\Sigma$ controls lensing-like effects; $\Gamma$ sets spectral thermalization and a mild angular damping envelope $D_\ell$.
+
+\section{Observables}
+\subsection{CMB anisotropies and polarization}
+At first pass, we modulate baseline $\Lambda$CDM spectra via $D_\ell$, an $A_L$-like lensing amplitude $1+\Sigma(k\!\sim\!0.1,z\!\sim\!2)$, and a peak-contrast factor proportional to $\mu(k,z\!\sim\!1100)$.
+In a full treatment, $\mu,\Sigma$ alter the photon-baryon oscillator and gravitational slip in the Boltzmann hierarchy. We provide hooks to CLASS for that purpose.
+
+\subsection{Spectral distortions}
+LGPD must keep $\mu$- and $y$-type distortions below FIRAS/Planck limits. The emissive kernel in the Lindblad operator enforces detailed balance to drive the spectrum to Planckian with $\mu\!\approx\!0$.
+
+\subsection{Distances, growth, and lensing}
+Background distances are fit with either $\Lambda$ or an effective late-time term $\Delta H^2(z)$ tuned to $w\simeq -1$ today.
+Linear growth follows a modified growth equation with $1+\mu(a)$, and weak-lensing amplitudes depend on $\Sigma$.
+
+\section{Data and inference}
+We confront the model with Planck TT/TE/EE (binned versions or official likelihoods), BAO distances, SNe (Pantheon-like), CMB lensing, and $f\sigma_8$ measurements. We use broad priors and sample with an ensemble MCMC.
+
+\section{Implementation summary}
+We provide a Python package \texttt{lgpd\_cosmo} that:
+(i) loads or generates baseline $C_\ell$,
+(ii) applies $(\mu,\Sigma,\Gamma)$ phenomenology to produce modified spectra,
+(iii) evaluates simple likelihoods or interfaces to external Boltzmann codes,
+(iv) explores parameter posteriors with \texttt{emcee}.
+
+\section{Predictions and tests}
+The framework predicts:
+(i) direction-dependent sub-$10^{-5}$ departures from a perfect blackbody correlated with low-$a$ sightlines,
+(ii) a small, scale-dependent deviation in CMB lensing amplitude $A_L$,
+(iii) a mild scale dependence in $f\sigma_8(k,z)$,
+(iv) interferometric coherence loss for compact sources behind deep voids.
+
+\section{Discussion}
+We outlined a route to unify dark matter phenomenology at linear scales, late-time acceleration, and CMB-like anisotropy and spectrum without a hot Big Bang, relying instead on low-gravity microphysics. The approach is falsifiable by spectral, polarization, and growth measurements. A full Boltzmann implementation is an immediate next step.
+
+\section{Conclusion}
+Low-gravity unraveling provides a consistent, testable alternative phenomenology.
+While ambitious, it can be confronted with current data using the provided code.
+
+\\
+
+\\
+\textbf{Code:} \url{sandbox:/mnt/data/lgpd_cosmo}
+
+\bibliographystyle{plainnat}
+\bibliography{refs}
+\end{document}
