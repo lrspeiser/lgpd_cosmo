@@ -66,3 +66,41 @@ class GrowthModel:
         # Normalize D(a=1)=1
         D /= D[-1]
         return a_vals, D
+
+    def fsigma8(self, z_array, sigma8_0=0.8):
+        """Compute fσ8(z) given a present-day normalization σ8_0.
+
+        Notes:
+        - This is a phenomenological calculation using the current GrowthModel.
+        - For full consistency, σ8_0 should be derived from a Boltzmann pipeline.
+        """
+        z = np.asarray(z_array)
+        a = 1.0/(1.0+z)
+        a_sorted = np.linspace(a.min()*0.99, 1.0, 800)
+        a_vals, D = self.solve(a_sorted)
+        a_vals = np.asarray(a_vals)
+        # f = d ln D / d ln a
+        lnD = np.log(np.maximum(D, 1e-12))
+        lna = np.log(np.maximum(a_vals, 1e-8))
+        dlnD_dlna = np.gradient(lnD, lna)
+        f_interp = np.interp(a, a_vals, dlnD_dlna)
+        D_interp = np.interp(a, a_vals, D)
+        return f_interp * sigma8_0 * D_interp
+
+    def E_G(self, z_array, Sigma_eff=0.0):
+        """Crude E_G(z) estimator: E_G ≈ Ω_m(a) (1+Σ_eff) / f(z).
+
+        This is a diagnostic, not a precision prediction without a full
+        Boltzmann implementation. Σ_eff is an effective lensing modifier
+        evaluated at scales relevant to galaxy-galaxy lensing.
+        """
+        z = np.asarray(z_array)
+        a = 1.0/(1.0+z)
+        # reuse f from fsigma8 with σ8_0 normalized out
+        a_sorted = np.linspace(a.min()*0.99, 1.0, 800)
+        a_vals, D = self.solve(a_sorted)
+        lnD = np.log(np.maximum(D, 1e-12))
+        lna = np.log(np.maximum(a_vals, 1e-8))
+        f = np.interp(a, a_vals, np.gradient(lnD, lna))
+        Om_a = np.array([self.Om_a(ai) for ai in a])
+        return Om_a * (1.0 + Sigma_eff) / np.maximum(f, 1e-6)

@@ -329,6 +329,55 @@ Integrate LGPD modifications into CAMB sources.
 
 **Note:** Full Planck likelihood integration requires ~1 week of development time. We provide our simplified likelihood as a starting point.
 
+### In-repo PLC (clik) setup
+
+We provide an adapter and setup guide to use the official Planck PLC directly from this repo once you have installed it locally:
+- docs/PLANCK_PLC_SETUP.md — installation and environment configuration
+- lgpd_cosmo/planck_plc.py — adapter scaffold (fail-fast until wired)
+- scripts/planck_plc_check.py — sanity check (import clik and CLIK_PATH)
+
+This path intentionally fails fast if PLC is missing or misconfigured. No silent fallbacks.
+
+---
+
+## Multi-probe quick fit (CMB-binned + BAO/SNe/RSD)
+
+We include a phenomenological multi-probe pipeline that will use any available datasets under data/:
+
+```bash
+python scripts/run_multiprobe_fit.py
+```
+
+Expected data files (place under data/):
+- planck_tt_binned.csv, planck_te_binned.csv, planck_ee_binned.csv
+- bao.csv (or bao_boss.csv, bao_compilation.csv) with columns: z,DV_over_rd,sigma
+- sne_pantheon.csv with columns: z,mu,sigma
+- growth_fsigma8.csv with columns: z,fsigma8,sigma
+
+This pipeline keeps LCDM background distances and phenomenologically modifies spectra/growth; it is not Boltzmann-consistent and is provided for exploratory robustness only.
+
+---
+
+## Growth diagnostics (fσ8 and E_G)
+
+The GrowthModel now exposes helper methods:
+- fsigma8(z, sigma8_0=0.8): returns fσ8(z)
+- E_G(z, Sigma_eff=0): crude diagnostic E_G ≈ Ω_m(a)(1+Σ_eff)/f(z)
+
+These are intended for diagnostics; precise predictions require a full Boltzmann implementation.
+
+---
+
+## Model comparison utilities (AIC/BIC)
+
+Compute simple information criteria from stored chains:
+
+```bash
+python scripts/model_comparison.py --chain outputs/robustness/full.npz --n 150
+```
+
+If --n is omitted, the script attempts to count rows in the binned CMB CSVs (approximate).
+
 ---
 
 ##Citing This Work
