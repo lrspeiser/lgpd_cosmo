@@ -336,6 +336,13 @@ We provide an adapter and setup guide to use the official Planck PLC directly fr
 - planck_plc.py — adapter at repository root (nll evaluation)
 - planck_plc_check.py — sanity check (import clik and CLIK_PATH)
 - planck_env.sh — environment helper (set PLC_ROOT then `source ./planck_env.sh`)
+- configs/planck_plc_paths.json — set likelihood file paths used by the fit script
+
+Run an official-likelihood fit (phenomenological stage):
+```bash
+source ./planck_env.sh
+python scripts/run_planck_plc_fit.py --config configs/planck_plc_paths.json --quick
+```
 
 This path intentionally fails fast if PLC is missing or misconfigured. No silent fallbacks.
 

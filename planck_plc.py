@@ -92,10 +92,11 @@ class PlanckPLC:
             if k in input_cls:
                 cl_local[k] = self._ensure_muK2(input_cls[k], units=units)
 
+        # Lensing phi-phi: dimensionless, do NOT scale like temperature spectra
         clpp_local = None
         if "PP" in input_cls:
-            clpp_local = self._ensure_muK2(input_cls["PP"], units=units)
-
+            clpp_local = np.asarray(input_cls["PP"], dtype=float)
+        
         total = 0.0
         for key, lkl in self.likes.items():
             if key == "lensing":
