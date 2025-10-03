@@ -1,0 +1,23 @@
+\label{sec:results}
+
+\subsection{Preliminary constraints (synthetic bandpowers)}
+As a pipeline shakedown we fit $(\mu_0,\Sigma_0,\xi_{\rm damp})$ to synthetic Planck-like bandpowers generated from a CAMB baseline and uniform $\ell$-binning with diagonal errors. This test is not a substitute for real Planck likelihoods, but it is a useful null benchmark. We obtain (medians and 68\% credible intervals):
+\begin{align*}
+\mu_0 &= -0.016 \;\;[\, -0.203,\, 0.199 \,],\\
+\Sigma_0 &= 0.025 \;\;[\, -0.0058,\, 0.0624 \,],\\
+\xi_{\rm damp} &= 0.0036 \;\;[\, 0.0010,\, 0.0075 \,].
+\end{align*}
+The inferred effective lensing amplitude proxy, defined as $A_L^{\rm eff}=1+\Sigma(k\!=\!0.1\,h\,{\rm Mpc}^{-1},z\!=\!2)$, is
+\[
+A_L^{\rm eff} = 1.0047 \;\;[\, 0.9989,\, 1.0114 \,],
+\]
+consistent with unity for this synthetic test. As expected, the constraints are largely prior-dominated with this simplified likelihood, and TE/EE adds modest constraining power over TT-only.
+
+\subsection{Planck + BAO + SNe + growth (target analysis)}
+With the full Planck likelihood (TT/TE/EE+lowE+lensing), BAO, Pantheon+ SNe, and $f\sigma_8$:
+\begin{itemize}
+  \item We will quote marginalized constraints on $(\mu_0,\Sigma_0,k_0,z_t,m,n,\xi_{\rm damp})$ with 68\% credible intervals and credible regions in the $(\mu_0,\Sigma_0)$ and $(\Sigma_0,A_L)$ planes. 
+  \item We will report $\Delta\chi^2$ relative to $\Lambda$CDM and information criteria (AIC/BIC), plus Bayes factors where feasible.
+  \item We will compare the $A_L$ implied by lensed spectra to that from lensing reconstruction to test internal consistency.
+\end{itemize}
+\emph{These numbers will be filled once the Boltzmann-consistent $(\mu,\Sigma)$ pipeline and official covariances are active.}
