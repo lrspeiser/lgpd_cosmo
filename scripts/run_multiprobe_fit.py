@@ -35,6 +35,8 @@ from lgpd_cosmo.mcmc import run_emcee
 def main():
     parser = argparse.ArgumentParser(description='Multi-probe LGPD fit (phenomenological)')
     parser.add_argument('--quick', action='store_true', help='Run a fast diagnostic (fewer steps, fixed seed)')
+    parser.add_argument('--cmb-subset', choices=['TT','TTTE','TTTEEE'], default='TTTEEE',
+                        help='Which CMB spectra to include (default: TTTEEE)')
     parser.add_argument('--out', default=str(repo_root / 'outputs' / 'multiprobe'), help='Output directory')
     args = parser.parse_args()
 
@@ -48,6 +50,13 @@ def main():
     have_tt = Path(repo.path('planck_tt_binned.csv')).exists()
     have_te = Path(repo.path('planck_te_binned.csv')).exists()
     have_ee = Path(repo.path('planck_ee_binned.csv')).exists()
+
+    # Apply subset gating
+    if args.cmb_subset == 'TT':
+        have_te = False
+        have_ee = False
+    elif args.cmb_subset == 'TTTE':
+        have_ee = False
 
     have_bao = any(Path(repo.path(n)).exists() for n in ["bao.csv", "bao_boss.csv", "bao_compilation.csv"])  # user to provide
     have_sne = Path(repo.path("sne_pantheon.csv")).exists()

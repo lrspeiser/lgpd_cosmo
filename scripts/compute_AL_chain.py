@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
 """
-Compute effective lensing amplitude A_L proxy from the posterior and add to the NPZ.
+Compute effective lensing amplitude A_L proxy from the posterior and write a new NPZ.
 
 Reads:
-  - examples/_real_fit/posterior.npz: chain (N,3) with [mu0, sigma0, xi_damp]
-Writes (overwrites the NPZ with an additional key):
-  - A_L_chain: array of length N, with A_L ~ 1 + sigma(k=0.1 h/Mpc, z=2)
+  - posterior .npz with keys:
+      chain: (N,3) [mu0, sigma0, xi_damp]
+      log_prob or logprob: sampler log-probabilities (optional)
+Writes:
+  - output .npz with keys: chain, log_prob, A_L_chain
 
 Usage:
-  python scripts/compute_AL_chain.py --posterior examples/_real_fit/posterior.npz
+  python scripts/compute_AL_chain.py --posterior outputs/multiprobe/multiprobe_posterior.npz --out outputs/multiprobe/posterior_with_AL.npz
 """
 import argparse
 import numpy as np
@@ -18,17 +20,21 @@ from lgpd_cosmo.models import ElasticityParams, sigma_kz
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument('--posterior', default='examples/_real_fit/posterior.npz')
+    ap.add_argument('--posterior', required=True, help='Input posterior .npz with chain')
+    ap.add_argument('--out', required=True, help='Output .npz to write (with A_L_chain)')
     args = ap.parse_args()
 
-    post = np.load(args.posterior)
+    post = np.load(args.posterior, allow_pickle=True)
     chain = np.asarray(post['chain'])
-    logp = np.asarray(post['logprob'])
+    # support both log_prob and logprob
+    logp = None
+    if 'log_prob' in post:
+        logp = np.asarray(post['log_prob'])
+    elif 'logprob' in post:
+        logp = np.asarray(post['logprob'])
 
     # chain order: [mu0, sigma0, xi_damp]
-    # For A_L proxy we use sigma0 and the fixed params from fit_with_real_data.py:
-    # ElasticityParams(sigma0=..., k0=0.1, m=2.0, zt=1.5, n=3.0)
-    # and evaluate at k=0.1, z=2.0 to get an effective lensing amplitude
+    # A_L proxy: 1 + Sigma(k=0.1 h/Mpc, z=2)
     k_ref = 0.1
     z_ref = 2.0
     A_L_chain = []
@@ -39,9 +45,12 @@ def main():
         A_L_chain.append(1.0 + sig)
     A_L_chain = np.array(A_L_chain)
 
-    # Overwrite NPZ with the new key
-    np.savez(args.posterior.replace('.npz', '_with_AL.npz'), chain=chain, logprob=logp, A_L_chain=A_L_chain)
-    print(f"Added A_L_chain to {args.posterior.replace('.npz', '_with_AL.npz')}")
+    save_kwargs = {'chain': chain, 'A_L_chain': A_L_chain}
+    if logp is not None:
+        save_kwargs['log_prob'] = logp
+
+    np.savez(args.out, **save_kwargs)
+    print(f"Added A_L_chain to {args.out}")
     print(f"A_L median={np.median(A_L_chain):.4f}, 68% CI=[{np.percentile(A_L_chain,16):.4f}, {np.percentile(A_L_chain,84):.4f}]")
 
 

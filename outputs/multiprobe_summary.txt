@@ -1,0 +1,18 @@
+MULTIPROBE SUMMARY
+===================
+
+Best-fit chi2: 29823.880
+Best-fit params: mu0=-0.596487, Sigma0=0.235023, xi_damp=0.049967
+
+Per-block chi2:
+  BAO: 2.129
+  EE: 7.740
+  GROWTH: 24.564
+  SNE: 1886.051
+  TE: 27817.856
+  TT: 85.540
+
+Posterior (median [16,84]):
+  mu0: -0.566107 [-0.593518, -0.512045]
+  Sigma0: 0.235641 [0.206872, 0.260611]
+  xi_damp: 0.049801 [0.049585, 0.049936]
