@@ -1,0 +1,12 @@
+Detected datasets:
+  Planck TT: True TE: True EE: False
+  BAO: True SNe: True Growth: True
+QUICK mode: nwalkers= 24  nsteps= 200  nburn= 80
+CHI2_TT=84.764
+CHI2_TE=27817.739
+CHI2_EE=0.000
+CHI2_BAO=2.129
+CHI2_SNE=1886.051
+CHI2_GROWTH=24.560
+PARAM_NAMES=mu0,Sigma0,xi_damp
+BESTFIT chi2=29815.243 params=-0.596036,0.256553,0.049976

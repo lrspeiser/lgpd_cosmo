@@ -33,6 +33,21 @@ class CondensateParams:
         self.zt = zt    # transition redshift
         self.n = n      # z steepness
 
+class CondensateParamsBinned:
+    """Two-bin redshift parameterization for μ(k,z):
+
+    μ(k,z) = μ_low  for z <= z_split
+           = μ_high for z >  z_split
+
+    with optional k-dependence through the same scale factor as CondensateParams.
+    """
+    def __init__(self, mu_low=0.0, mu_high=0.0, z_split=0.5, k0=0.05, m=2.0):
+        self.mu_low = mu_low
+        self.mu_high = mu_high
+        self.z_split = z_split
+        self.k0 = k0
+        self.m = m
+
 class ElasticityParams:
     """Parameters for Σ(k,z) (lensing modification / anisotropic stress)."""
     def __init__(self, sigma0=0.0, k0=0.05, m=2.0, zt=1.0, n=2.0):
@@ -57,6 +72,27 @@ def mu_kz(k, z, pars: CondensateParams):
     """Scale- and redshift-dependent modification to Newtonian potential Φ → (1+μ)Φ."""
     scale = 1.0 / (1.0 + (k/pars.k0)**(-pars.m))
     return pars.mu0 * scale * S_of_z(z, pars.zt, pars.n)
+
+def mu_kz_binned(k, z, pars: 'CondensateParamsBinned'):
+    """Two-bin μ(k,z) using piecewise-constant amplitude in redshift, with k scaling.
+
+    Notes:
+    - Vectorized over z; k may be scalar or array broadcastable with z.
+    - This is a phenomenological parameterization intended for trend testing.
+    """
+    z = np.asarray(z)
+    scale = 1.0 / (1.0 + (np.asarray(k)/pars.k0)**(-pars.m))
+    amp = np.where(z <= pars.z_split, pars.mu_low, pars.mu_high)
+    return amp * scale
+
+# Helper for growth-only usage (μ(a) without k)
+# This maps a -> μ(a) corresponding to the binned redshift model
+# a = 1/(1+z)
+
+def mu_of_a_binned(a, pars: 'CondensateParamsBinned'):
+    a = np.asarray(a)
+    z = 1.0/np.maximum(a, 1e-8) - 1.0
+    return np.where(z <= pars.z_split, pars.mu_low, pars.mu_high)
 
 def sigma_kz(k, z, pars: ElasticityParams):
     scale = 1.0 / (1.0 + (k/pars.k0)**(-pars.m))
@@ -96,5 +132,15 @@ class LGPDTransfer:
         return 1.0 + sigma_kz(k, z, self.elas)
 
     def mu_today_large_scales(self):
-        return mu_kz(0.01, 0.0, self.cond)
+        # Evaluate μ on large scales (k~0.01 h/Mpc) at z=0 for a rough amplitude proxy.
+        if isinstance(self.cond, CondensateParams):
+            return mu_kz(0.01, 0.0, self.cond)
+        try:
+            # Support two-bin model
+            if isinstance(self.cond, CondensateParamsBinned):
+                return mu_kz_binned(0.01, 0.0, self.cond)
+        except NameError:
+            # CondensateParamsBinned may not be defined if not imported; default to 0.
+            pass
+        return 0.0
 

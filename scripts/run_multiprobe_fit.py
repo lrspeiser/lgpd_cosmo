@@ -37,6 +37,10 @@ def main():
     parser.add_argument('--quick', action='store_true', help='Run a fast diagnostic (fewer steps, fixed seed)')
     parser.add_argument('--cmb-subset', choices=['TT','TTTE','TTTEEE'], default='TTTEEE',
                         help='Which CMB spectra to include (default: TTTEEE)')
+    parser.add_argument('--mu-model', choices=['constant','binned'], default='constant',
+                        help='Choose μ(a) model: constant (μ0) or two-bin in redshift (μ_low, μ_high)')
+    parser.add_argument('--z-split', type=float, default=0.5,
+                        help='Redshift split for two-bin μ(z) model (default: 0.5)')
     parser.add_argument('--out', default=str(repo_root / 'outputs' / 'multiprobe'), help='Output directory')
     args = parser.parse_args()
 
@@ -69,11 +73,21 @@ def main():
     ell, cls0 = repo.load_planck_baseline()
 
     def loglike(theta):
-        mu0, Sigma0, xi = theta
-        lg = LGPDParams(xi_damp=xi)
-        cp = CondensateParams(mu0=mu0)
-        ep = ElasticityParams(sigma0=Sigma0)
-        T = LGPDTransfer(lg, cp, ep)
+        if args.mu_model == 'constant':
+            mu0, Sigma0, xi = theta
+            lg = LGPDParams(xi_damp=xi)
+            cp = CondensateParams(mu0=mu0)
+            ep = ElasticityParams(sigma0=Sigma0)
+            T = LGPDTransfer(lg, cp, ep)
+            mu_of_a_fn = (lambda a: mu0)
+        else:
+            mu_low, mu_high, Sigma0, xi = theta
+            lg = LGPDParams(xi_damp=xi)
+            from lgpd_cosmo.models import CondensateParamsBinned, mu_of_a_binned
+            cpb = CondensateParamsBinned(mu_low=mu_low, mu_high=mu_high, z_split=args.z_split)
+            ep = ElasticityParams(sigma0=Sigma0)
+            T = LGPDTransfer(lg, cpb, ep)
+            mu_of_a_fn = (lambda a: mu_of_a_binned(a, cpb))
 
         # spectra
         cls_mod = apply_modifications(ell, cls0, T)
@@ -127,15 +141,21 @@ def main():
 
         if have_growth:
             growth = repo.load_growth("growth_fsigma8.csv")
-            GM = GrowthModel(lcdm, mu_of_a_fn=lambda a: mu0)  # crude mapping: constant mu
+            GM = GrowthModel(lcdm, mu_of_a_fn=mu_of_a_fn)
             chi2_growth = L.add_growth(growth, lambda z: GM.fsigma8(z, sigma8_0=0.8))
 
         chi2, dof, parts = L.summary()
         return -0.5*chi2
 
     # MCMC configuration
-    theta0 = np.array([0.0, 0.0, 0.01])
-    priors = [(-0.6, 0.6), (-0.6, 0.6), (0.0, 0.05)]
+    if args.mu_model == 'constant':
+        theta0 = np.array([0.0, 0.0, 0.01])
+        priors = [(-0.6, 0.6), (-0.6, 0.6), (0.0, 0.05)]
+        param_names = np.array(['mu0','Sigma0','xi_damp'])
+    else:
+        theta0 = np.array([0.0, 0.0, 0.0, 0.01])
+        priors = [(-0.6, 0.6), (-0.6, 0.6), (-0.6, 0.6), (0.0, 0.05)]
+        param_names = np.array(['mu_low','mu_high','Sigma0','xi_damp'])
     nwalkers = 24
     nsteps = 400
     nburn = 100
@@ -157,14 +177,24 @@ def main():
     best_chi2 = float(-2*lnp[best_idx])
 
     # Save posterior for parsers
-    np.savez(out_dir / 'multiprobe_posterior.npz', chain=chain, log_prob=lnp, param_names=np.array(['mu0','Sigma0','xi_damp']))
+    np.savez(out_dir / 'multiprobe_posterior.npz', chain=chain, log_prob=lnp, param_names=param_names)
 
     # Recompute per-block chi2 at best-fit for parseable log lines
-    mu0, Sigma0, xi = best_theta
-    lg = LGPDParams(xi_damp=xi)
-    cp = CondensateParams(mu0=mu0)
-    ep = ElasticityParams(sigma0=Sigma0)
-    T = LGPDTransfer(lg, cp, ep)
+    if args.mu_model == 'constant':
+        mu0, Sigma0, xi = best_theta
+        lg = LGPDParams(xi_damp=xi)
+        cp = CondensateParams(mu0=mu0)
+        ep = ElasticityParams(sigma0=Sigma0)
+        T = LGPDTransfer(lg, cp, ep)
+        mu_of_a_fn_bf = (lambda a: mu0)
+    else:
+        mu_low, mu_high, Sigma0, xi = best_theta
+        lg = LGPDParams(xi_damp=xi)
+        from lgpd_cosmo.models import CondensateParamsBinned, mu_of_a_binned
+        cpb = CondensateParamsBinned(mu_low=mu_low, mu_high=mu_high, z_split=args.z_split)
+        ep = ElasticityParams(sigma0=Sigma0)
+        T = LGPDTransfer(lg, cpb, ep)
+        mu_of_a_fn_bf = (lambda a: mu_of_a_binned(a, cpb))
     cls_mod = apply_modifications(ell, cls0, T)
     Lbf = Likelihoods()
     cl_to_dl = lambda el, cl: el*(el+1.0)*cl/(2.0*np.pi)
@@ -203,7 +233,7 @@ def main():
         chi2_sne = Lbf.add_sne(sne, mu_model)
     if have_growth:
         growth = repo.load_growth("growth_fsigma8.csv")
-        GM = GrowthModel(lcdm, mu_of_a_fn=lambda a: mu0)
+        GM = GrowthModel(lcdm, mu_of_a_fn=mu_of_a_fn_bf)
         chi2_growth = Lbf.add_growth(growth, lambda z: GM.fsigma8(z, sigma8_0=0.8))
 
     total_chi2, dof, parts = Lbf.summary()
@@ -215,8 +245,10 @@ def main():
     print(f"CHI2_GROWTH={chi2_growth:.3f}")
 
     # Parseable summary lines
-    print("PARAM_NAMES=mu0,Sigma0,xi_damp")
-    print("BESTFIT chi2={:.3f} params={:.6f},{:.6f},{:.6f}".format(best_chi2, best_theta[0], best_theta[1], best_theta[2]))
+    names_str = ','.join([str(n) for n in param_names])
+    print(f"PARAM_NAMES={names_str}")
+    params_str = ','.join([f"{v:.6f}" for v in best_theta])
+    print(f"BESTFIT chi2={best_chi2:.3f} params={params_str}")
 
 if __name__ == "__main__":
     main()
