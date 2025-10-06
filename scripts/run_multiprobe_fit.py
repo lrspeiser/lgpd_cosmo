@@ -176,8 +176,41 @@ def main():
     best_theta = chain[best_idx]
     best_chi2 = float(-2*lnp[best_idx])
 
+    # Convergence diagnostics
+    conv = {}
+    try:
+        from lgpd_cosmo.mcmc import compute_autocorr_time, effective_sample_size
+        tau = compute_autocorr_time(sampler)
+        conv['tau'] = tau.tolist() if tau is not None else None
+        ess = effective_sample_size(chain, tau=tau if tau is not None else None)
+        conv['ess'] = ess.tolist()
+        # Pseudo R-hat by grouping walkers
+        try:
+            raw = sampler.get_chain(discard=nburn, flat=False)
+            nsteps_post, nwalkers_eff, ndim = raw.shape
+            groups = 4 if nwalkers_eff >= 8 else 2
+            per = nwalkers_eff // groups
+            chains_list = []
+            for g in range(groups):
+                sl = raw[:, g*per:(g+1)*per, :].reshape(-1, ndim)
+                if sl.shape[0] > 0:
+                    chains_list.append(sl)
+            if len(chains_list) >= 2:
+                from lgpd_cosmo.mcmc import compute_gelman_rubin
+                rhat = compute_gelman_rubin(chains_list)
+                conv['rhat'] = rhat.tolist() if rhat is not None else None
+        except Exception as e:
+            conv['rhat_error'] = str(e)
+    except Exception as e:
+        conv['error'] = str(e)
+
     # Save posterior for parsers
     np.savez(out_dir / 'multiprobe_posterior.npz', chain=chain, log_prob=lnp, param_names=param_names)
+
+    # Save convergence JSON
+    import json as _json
+    with open(out_dir / 'convergence.json', 'w') as cf:
+        _json.dump(conv, cf, indent=2)
 
     # Recompute per-block chi2 at best-fit for parseable log lines
     if args.mu_model == 'constant':
