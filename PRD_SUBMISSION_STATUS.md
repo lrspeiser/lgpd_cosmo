@@ -1,11 +1,70 @@
 # PRD SUBMISSION STATUS
 
-**Date:** October 3, 2025  
-**Status:** ✅ **READY FOR SUBMISSION**
+Date: October 6, 2025  
+Status: In progress — Phenomenological pipeline; not yet ready for PRD submission
 
 ---
 
-## ✅ COMPLETION CHECKLIST
+Summary
+- The codebase and pipeline are in good shape and reproducible. We have a working phenom analysis with quick fits and initial model comparison. However, several critical items remain before a credible PRD submission.
+- This document has been updated to reflect current reality. Prior claims of “READY FOR SUBMISSION”, A_L resolution, and full robustness should be treated as placeholders and are superseded by the checklist below.
+
+---
+
+Current results (quick, non-PLC; for orientation only)
+- Multiprobe phenom fit (Planck binned TT/TE/EE + BOSS DR12 DV/rs + Pantheon SNe + growth):
+  - Constant μ model: AIC ≈ 29829.30, BIC ≈ 29840.47
+  - Two-bin μ(z) model (z_split=0.5): AIC ≈ 29820.68, BIC ≈ 29835.58
+  - ΔAIC ≈ -8.62, ΔBIC ≈ -4.89 favor binned model in the quick pipeline
+- Redshift trend diagnostics (preliminary):
+  - SNe: mild negative residual trend vs z (significant with large N) — interpretation deferred until PLC and calibrated BAO are in place.
+  - BAO, Growth: only 3 points (BOSS DR12) — insufficient for trend inference.
+
+Caveats
+- Not using official Planck PLC likelihood yet (TT/TE/EE bandpowers and full covariance absent in current quick binned CSV path).
+- BAO and growth compilations are minimal (3 points); need broader datasets and covariances for publication claims.
+- Reported AIC/BIC values are from exploratory phenom fits and should not be quoted as final results.
+
+---
+
+Completion checklist (updated)
+
+Core analysis
+- [ ] Integrate official Planck PLC likelihood (TT/TE/EE, low-ℓ, lensing) via configs/planck_plc_paths.json (paths must exist on this machine)
+- [ ] Ingest robust BAO compilation (≥10 points; BOSS DR12 + others) with covariances
+- [ ] Ingest robust growth fσ8 compilation (≥15 points) with uncertainties
+- [ ] Decide baseline model for paper (constant μ0 recommended for main text; keep two-bin μ(z) for tests/appendix)
+- [ ] Run production MCMC (e.g., 64×2000+) and compute convergence metrics (R̂, ESS, τ)
+
+Robustness and validation
+- [ ] ΛCDM recovery (μ=Σ=ξ=0) under PLC
+- [ ] Prior sensitivity (×2 wider/narrower)
+- [ ] Dataset ablations (TT-only, TT+TE, TT+TE+EE) under PLC
+- [ ] χ² breakdown per dataset and comparison against ΛCDM
+- [ ] Optional: nested sampling for evidence (Bayes factor)
+
+Figures/tables (regenerate after production runs)
+- [ ] Power spectra with residuals (TT/TE/EE) under best-fit
+- [ ] Posterior corner plots (chosen model)
+- [ ] AIC/BIC (and optionally evidence) comparison table (constant vs binned)
+- [ ] Robustness summary table with PLC-backed results
+
+Documentation and claims
+- [ ] Replace all placeholder claims about A_L, “READY FOR SUBMISSION”, and full robustness with PLC-backed, dataset-complete results
+- [ ] Add a clear “Known limitations” section (phenomenological assumptions, background consistency, etc.)
+- [ ] Update README_DATA.md with BAO/growth compilation provenance and formats
+
+---
+
+Next actions (immediate)
+- Provide valid paths in configs/planck_plc_paths.json and ensure planck_env.sh is sourced.
+- Run: python scripts/run_planck_plc_fit.py --quick --mu-model constant (and binned), compare AIC/BIC and Δχ² under PLC to select the baseline model.
+- Expand BAO/growth datasets (I can ingest your preferred compilations into data/).
+
+---
+
+Notes
+- All previous sections asserting completion/readiness are intentionally removed or superseded. We will re-populate once PLC-backed production analyses are complete.
 
 ### Core Paper Components
 

@@ -64,6 +64,9 @@ def main():
     ap.add_argument('--config', default=str(REPO_ROOT / 'configs' / 'planck_plc_paths.json'),
                     help='Path to JSON file with PLC likelihood paths')
     ap.add_argument('--quick', action='store_true', help='Run fewer steps for a smoke test')
+    ap.add_argument('--mu-model', choices=['constant','binned'], default='constant',
+                    help='Choose μ model: constant (μ0) or two-bin in redshift (μ_low, μ_high)')
+    ap.add_argument('--z-split', type=float, default=0.5, help='Redshift split for two-bin μ(z)')
     args = ap.parse_args()
 
     out_dir = REPO_ROOT / 'outputs' / 'plc'
@@ -79,11 +82,19 @@ def main():
 
     # Define loglike with current phenomenological modifications
     def loglike(theta):
-        mu0, Sigma0, xi = theta
-        lg = LGPDParams(xi_damp=xi)
-        cp = CondensateParams(mu0=mu0)
-        ep = ElasticityParams(sigma0=Sigma0)
-        T = LGPDTransfer(lg, cp, ep)
+        if args.mu_model == 'constant':
+            mu0, Sigma0, xi = theta
+            lg = LGPDParams(xi_damp=xi)
+            cp = CondensateParams(mu0=mu0)
+            ep = ElasticityParams(sigma0=Sigma0)
+            T = LGPDTransfer(lg, cp, ep)
+        else:
+            mu_low, mu_high, Sigma0, xi = theta
+            lg = LGPDParams(xi_damp=xi)
+            from lgpd_cosmo.models import CondensateParamsBinned
+            cpb = CondensateParamsBinned(mu_low=mu_low, mu_high=mu_high, z_split=args.z_split)
+            ep = ElasticityParams(sigma0=Sigma0)
+            T = LGPDTransfer(lg, cpb, ep)
         cls_mod = apply_modifications(baseline['ell'], {k: baseline[k] for k in ['TT','TE','EE']}, T)
         cls_for_plc = {"ell": baseline['ell'], "TT": cls_mod['TT'], "TE": cls_mod['TE'], "EE": cls_mod['EE']}
         if 'PP' in baseline:
@@ -92,8 +103,14 @@ def main():
         return -0.5 * nll
 
     # MCMC settings
-    theta0 = np.array([0.0, 0.0, 0.01])
-    priors = [(-0.6, 0.6), (-0.6, 0.6), (0.0, 0.05)]
+    if args.mu_model == 'constant':
+        theta0 = np.array([0.0, 0.0, 0.01])
+        priors = [(-0.6, 0.6), (-0.6, 0.6), (0.0, 0.05)]
+        param_names = np.array(['mu0','Sigma0','xi_damp'])
+    else:
+        theta0 = np.array([0.0, 0.0, 0.0, 0.01])
+        priors = [(-0.6, 0.6), (-0.6, 0.6), (-0.6, 0.6), (0.0, 0.05)]
+        param_names = np.array(['mu_low','mu_high','Sigma0','xi_damp'])
     nsteps = 300 if args.quick else 800
 
     chain, lnp, sampler = run_emcee(loglike, theta0, priors, nwalkers=24, nsteps=nsteps, nburn=100)
@@ -101,8 +118,37 @@ def main():
     best_theta = chain[best]
     best_nll = -2 * lnp[best]
 
+    # Convergence diagnostics
+    conv = {}
+    try:
+        from lgpd_cosmo.mcmc import compute_autocorr_time, effective_sample_size
+        tau = compute_autocorr_time(sampler)
+        conv['tau'] = tau.tolist() if tau is not None else None
+        ess = effective_sample_size(chain, tau=tau if tau is not None else None)
+        conv['ess'] = ess.tolist()
+        # Pseudo R-hat: split walkers into 4 groups if possible
+        try:
+            raw = sampler.get_chain(discard=100, flat=False)
+            # raw shape: (nsteps_post, nwalkers, ndim)
+            nsteps_post, nwalkers, ndim = raw.shape
+            groups = 4 if nwalkers >= 8 else 2
+            per = nwalkers // groups
+            chains_list = []
+            for g in range(groups):
+                sl = raw[:, g*per:(g+1)*per, :].reshape(-1, ndim)
+                if sl.shape[0] > 0:
+                    chains_list.append(sl)
+            if len(chains_list) >= 2:
+                from lgpd_cosmo.mcmc import compute_gelman_rubin
+                rhat = compute_gelman_rubin(chains_list)
+                conv['rhat'] = rhat.tolist() if rhat is not None else None
+        except Exception as e:
+            conv['rhat_error'] = str(e)
+    except Exception as e:
+        conv['error'] = str(e)
+
     # Save outputs
-    np.savez(out_dir / 'posterior_plc.npz', chain=chain, log_prob=lnp, param_names=np.array(['mu0','Sigma0','xi_damp']),
+    np.savez(out_dir / 'posterior_plc.npz', chain=chain, log_prob=lnp, param_names=param_names,
              base_nll=base_nll, best_theta=best_theta, best_nll=best_nll)
 
     with open(out_dir / 'summary.txt', 'w') as f:
@@ -110,7 +156,18 @@ def main():
         f.write("========================\n\n")
         f.write(f"Baseline -2lnL (theta=0,0,0): {base_nll:.2f}\n")
         f.write(f"Best -2lnL: {best_nll:.2f}\n")
-        f.write(f"Best theta: mu0={best_theta[0]:.4f}, Sigma0={best_theta[1]:.4f}, xi={best_theta[2]:.4f}\n")
+        f.write("Best theta: " + ', '.join(f"{name}={val:.4f}" for name, val in zip(param_names, best_theta)) + "\n")
+        if 'tau' in conv and conv['tau'] is not None:
+            f.write("Autocorr τ: " + ', '.join(f"{t:.1f}" for t in conv['tau']) + "\n")
+        if 'ess' in conv and conv['ess'] is not None:
+            f.write("ESS: " + ', '.join(f"{e:.0f}" for e in conv['ess']) + "\n")
+        if 'rhat' in conv and conv['rhat'] is not None:
+            f.write("R-hat: " + ', '.join(f"{r:.3f}" for r in conv['rhat']) + "\n")
+
+    # Save convergence JSON
+    import json as _json
+    with open(out_dir / 'convergence.json', 'w') as cf:
+        _json.dump(conv, cf, indent=2)
 
     print("Done. Results in:", out_dir)
 
